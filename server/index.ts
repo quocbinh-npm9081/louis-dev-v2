@@ -5,6 +5,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import routes from './routes';
 // BOOT EXPRESS
 const app: Application = express();
 const port = 5000;
@@ -17,8 +18,9 @@ app.use(cookieParser());
 //CONNECT DB
 Connect_mongodb_atlas();
 // APPLICATION ROUTING
-app.use('/', (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).send({ data: 'HELLO DEV TEAM. LET GET STAETED !!!' });
+routes(app);
+app.get('/', (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).send({ data: 'HELLO DEV TEAM. LET GET STARTED !!!' });
 });
 
 // Start server
