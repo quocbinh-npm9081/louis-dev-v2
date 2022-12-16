@@ -29,14 +29,15 @@ export const validatorRegistration = async (req: Request, res: Response, next: N
   if (!account) {
     errors.push('Please add your account pr phone number !');
   } else if (!validPhone(account) && !validEmail(account)) {
-    console.log(validPhone(account));
-
     errors.push('Your email or your phone is incorrects !');
   }
-  if (password.length < 6) {
-    errors.push('Your password must be at least 6 characters !');
+  if (validPhone(account)) {
+    errors.push('Đăng kí sử dụng sms đang trong giai đoạn phát triển');
   }
+  // if (password.length < 6) {
+  //   errors.push('Your password must be at least 6 characters !');
+  // }
 
   if (errors.length > 0) return res.status(400).json({ msg: errors });
-  else next();
+  next();
 };
