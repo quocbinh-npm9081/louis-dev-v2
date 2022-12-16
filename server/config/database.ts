@@ -1,6 +1,6 @@
-import { connect } from 'mongoose';
+import mongoose, { connect } from 'mongoose';
+mongoose.set('strictQuery', true);
 const URL = process.env.MONGODB_URL;
-
 const Connect_mongodb_atlas = async () => {
   try {
     await connect(`${URL}`);
@@ -9,5 +9,4 @@ const Connect_mongodb_atlas = async () => {
     console.log('Connect DB failse !!!');
   }
 };
-
 export { Connect_mongodb_atlas };

@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'https://cdn.iconscout.com/icon/premium/png-512-thumb/avatar-1810626-1536314.png',
     },
+    role: {
+      type: String,
+      default: 'user', // admin
+    },
     type: {
       type: String,
       default: 'normal', // fast

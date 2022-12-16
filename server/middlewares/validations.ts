@@ -17,7 +17,7 @@ const validPhone = (phone: string) => {
   return false;
 };
 
-const validatorRegistration = async (req: Request, res: Response, next: NextFunction) => {
+export const validatorRegistration = async (req: Request, res: Response, next: NextFunction) => {
   const { name, account, password }: any = req.body;
   if (!name) {
     return res.status(400).json({ msg: 'Please add your name' });
@@ -25,10 +25,14 @@ const validatorRegistration = async (req: Request, res: Response, next: NextFunc
     return res.status(400).json({ msg: 'Your name is up to 20 chars long' });
   }
   if (!account) {
-    return res.status(400).json({ msg: 'Please add your account pr phone number' });
-  } else if (validEmail(account)) {
-    return res.status(400).json({ msg: 'Your account is up to 20 chars long' });
-  }
-};
+    return res.status(400).json({ msg: 'Please add your account pr phone number !' });
+  } else if (!validPhone(account) && !validEmail(account)) {
+    console.log(validPhone(account));
 
-export default validatorRegistration;
+    return res.status(400).json({ msg: 'Your email or your phone is incorrects !' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ msg: 'Your password must be at least 6 characters !' });
+  }
+  next();
+};

@@ -19,9 +19,6 @@ app.use(cookieParser());
 Connect_mongodb_atlas();
 // APPLICATION ROUTING
 routes(app);
-app.get('/', (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).send({ data: 'HELLO DEV TEAM. LET GET STARTED !!!' });
-});
 
 // Start server
 app.listen(port, () => console.log(`Server is listening on port ${port}!`));
