@@ -2,9 +2,27 @@ import { Request, Response } from 'express';
 import UserModel from '../models/user.model';
 import bcrypt from 'bcrypt';
 import userModel from '../models/user.model';
-import { generateToken, generateVerifyToken } from '../config/generateToken';
+import jwt from 'jsonwebtoken';
+import { generateAccessToken, generateRefeshToken, generateToken, generateVerifyToken } from '../config/generateToken';
 import { validEmail } from '../middlewares/validations';
 import sendMail from '../config/sendMail';
+import { IUserDecoded, IUserDocument } from '../config/interfaces';
+
+const loginUser = async (user: IUserDocument, password: string, res: Response) => {
+  const passwordHashed = user.password;
+  const isMatch = await bcrypt.compare(password, passwordHashed);
+  if (!isMatch) return res.status(400).json({ msg: 'Password is incorrect !' });
+  const access_token = generateAccessToken({ id: user._id });
+  const refresh_token = generateRefeshToken({ id: user.id });
+  return res
+    .cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
+    })
+    .status(200)
+    .json({ msg: 'login success', access_token: access_token, user: { ...user._doc, password: '' } });
+  //  res.status(200).json({ msg: 'login success', access_token: access_token, user: { ...user._doc, password: '' } });
+};
 
 const AuthControllers = {
   register: async (req: Request, res: Response) => {
@@ -47,6 +65,40 @@ const AuthControllers = {
       if (error.code === 11000) return res.status(400).json({ status: 'ERROR', msg: 'Account already exits !' });
       if (error.name === 'TokenExpiredError') return res.status(400).json({ status: 'ERROR', msg: 'jwt expired !' });
       return res.status(500).json({ status: 'ERROR', msg: error });
+    }
+  },
+  login: async (req: Request, res: Response) => {
+    try {
+      const { account, password } = req.body;
+      const user = await UserModel.findOne({ account: account });
+      if (!user) return res.status(400).json({ msg: 'User already not exits !' });
+      loginUser(user, password, res);
+    } catch (error: any) {
+      return res.status(500).json({ error: error });
+    }
+  },
+  logout: (req: Request, res: Response) => {
+    try {
+      return res.clearCookie('refresh_token').status(200).json({ msg: 'Logged out !' });
+    } catch (error: any) {
+      return res.status(500).json({ error: error });
+    }
+  },
+  refreshToken: async (req: Request, res: Response) => {
+    try {
+      let rf_token = req.cookies;
+      if (!rf_token.refresh_token) return res.status(400).json({ msg: 'Please login again !' });
+      rf_token = req.cookies.refresh_token;
+      const decoded = await (<IUserDecoded>jwt.verify(rf_token, String(process.env.REFRESH_TOKEN_SECRET)));
+      if (!decoded.id) return res.status(400).json({ msg: 'Please login again !' });
+      const user = await UserModel.findById(decoded.id).select('-password');
+      if (!user) return res.status(400).json({ msg: 'Your Account does not exist Please login again !' });
+      const access_token = generateAccessToken({ id: user.id });
+      return res
+        .status(200)
+        .json({ msg: 'refresh token success !', rf_token: rf_token, access_token: access_token, decoded_id: decoded.id });
+    } catch (error: any) {
+      return res.status(500).json({ error: error });
     }
   },
 };

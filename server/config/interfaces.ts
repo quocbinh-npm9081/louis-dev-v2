@@ -1,3 +1,14 @@
+import { Document } from 'mongoose';
+export interface IUserDocument extends Document {
+  name: string;
+  account: string;
+  password: string;
+  avatar: string;
+  role: string;
+  type: string;
+  _doc: object;
+}
+
 export interface INewUser {
   name: string;
   account: string;
@@ -5,7 +16,8 @@ export interface INewUser {
 }
 
 export interface IUserDecoded {
-  newUser: INewUser;
+  id?: string;
+  newUser?: INewUser;
   iat: number;
   exp: number;
 }

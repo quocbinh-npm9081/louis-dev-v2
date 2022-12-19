@@ -9,7 +9,7 @@ export const generateAccessToken = (payload: object) => {
   return jwt.sign(payload, privateKey, { expiresIn: '15m' });
 };
 export const generateRefeshToken = (payload: object) => {
-  const privateKey = String(process.env.REFESH_TOKEN_SECRET);
+  const privateKey = String(process.env.REFRESH_TOKEN_SECRET);
   return jwt.sign(payload, privateKey, { expiresIn: '30d' });
 };
 
