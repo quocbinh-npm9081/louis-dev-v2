@@ -25,6 +25,7 @@ export const validatorRegistration = async (req: Request, res: Response, next: N
   if (!account) {
     errors.push('Please add your account pr phone number !');
   } else if (!validPhone(account) && !validEmail(account)) {
+    console.log(validEmail(account));
     errors.push('Your email or your phone is incorrects !');
   }
   if (validPhone(account)) {

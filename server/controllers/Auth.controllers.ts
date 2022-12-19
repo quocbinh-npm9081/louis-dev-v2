@@ -4,8 +4,9 @@ import bcrypt from 'bcrypt';
 import userModel from '../models/user.model';
 import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefeshToken, generateToken, generateVerifyToken } from '../config/generateToken';
-import { validEmail } from '../middlewares/validations';
+import { validEmail, validPhone } from '../middlewares/validations';
 import sendMail from '../config/sendMail';
+import sendSms from '../config/sendSMS';
 import { IUserDecoded, IUserDocument } from '../config/interfaces';
 
 const loginUser = async (user: IUserDocument, password: string, res: Response) => {
@@ -21,7 +22,6 @@ const loginUser = async (user: IUserDocument, password: string, res: Response) =
     })
     .status(200)
     .json({ msg: 'login success', access_token: access_token, user: { ...user._doc, password: '' } });
-  //  res.status(200).json({ msg: 'login success', access_token: access_token, user: { ...user._doc, password: '' } });
 };
 
 const AuthControllers = {
@@ -34,20 +34,23 @@ const AuthControllers = {
       const passwordHashed = await bcrypt.hash(password, saltRounds);
       const newUser = { name: name, account: account, password: passwordHashed };
       const active_token = await generateToken({ newUser });
+      const CLIENT_URL = `${process.env.BASE_URL}/active/${active_token}`;
       if (validEmail(account)) {
-        const CLIENT_URL = `${process.env.BASE_URL}/active/${active_token}`;
-        const isSendMail = await sendMail(account, 'OK', CLIENT_URL);
+        const isSendMail = await sendMail(account, 'Xác nhận email của bạn !', CLIENT_URL);
         if (isSendMail)
           return res
             .status(200)
             .json({ status: 'OK', msg: 'Register with email successfully !', data: newUser, active_token: active_token });
         else return res.status(500).json({ status: 'ERROR', msg: 'Somethings went wrong !' });
+      } else if (validPhone(account)) {
+        return res.status(200).json({ status: 'OK', msg: 'đây là sdt', data: newUser, active_token: active_token });
+        // const isSendSMS = await sendSms(account, 'Xác nhận số điện thoai của bạn !', CLIENT_URL);
+        // if (isSendSMS)
+        //   return res
+        //     .status(200)
+        //     .json({ status: 'OK', msg: 'Register with your phone number successfully !', data: newUser, active_token: active_token });
+        // else return res.status(500).json({ status: 'ERROR', msg: 'Somethings went wrong !' });
       }
-      // if (validPhone(account)) {
-      //   return res
-      //     .status(200)
-      //     .json({ status: 'OK', msg: 'Register with your phone number successfully !', data: newUser, active_token: active_token });
-      // }
     } catch (error) {
       return res.status(500).json({ status: 'ERROR', msg: error });
     }
