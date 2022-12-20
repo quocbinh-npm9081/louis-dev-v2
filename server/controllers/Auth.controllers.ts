@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import userModel from '../models/user.model';
 import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefeshToken, generateToken, generateVerifyToken } from '../config/generateToken';
-import { validEmail, validPhone } from '../middlewares/validations';
+import { validEmail, isVietnamesePhoneNumber } from '../middlewares/validations';
 import sendMail from '../config/sendMail';
 import sendSms from '../config/sendSMS';
 import { IUserDecoded, IUserDocument } from '../config/interfaces';
@@ -42,17 +42,21 @@ const AuthControllers = {
             .status(200)
             .json({ status: 'OK', msg: 'Register with email successfully !', data: newUser, active_token: active_token });
         else return res.status(500).json({ status: 'ERROR', msg: 'Somethings went wrong !' });
-      } else if (validPhone(account)) {
-        return res.status(200).json({ status: 'OK', msg: 'đây là sdt', data: newUser, active_token: active_token });
-        // const isSendSMS = await sendSms(account, 'Xác nhận số điện thoai của bạn !', CLIENT_URL);
-        // if (isSendSMS)
-        //   return res
-        //     .status(200)
-        //     .json({ status: 'OK', msg: 'Register with your phone number successfully !', data: newUser, active_token: active_token });
-        // else return res.status(500).json({ status: 'ERROR', msg: 'Somethings went wrong !' });
+      } else if (isVietnamesePhoneNumber(account)) {
+        // return res.status(200).json({ status: 'OK', msg: 'đây là sdt', data: newUser, active_token: active_token });
+        const isSendSMS = await sendSms(
+          account,
+          'anh đang test chức năng gửi sms, em thấy tin nhắn này thì ib cho anh biết là nó hoạt động nha !',
+          CLIENT_URL,
+        );
+        if (isSendSMS)
+          return res
+            .status(200)
+            .json({ status: 'OK', msg: 'Register with your phone number successfully !', data: newUser, active_token: active_token });
+        else return res.status(500).json({ status: 'ERROR', msg: 'Somethings went wrong !' });
       }
-    } catch (error) {
-      return res.status(500).json({ status: 'ERROR', msg: error });
+    } catch (error: any) {
+      return res.status(500).json({ status: 'ERROR', msg: error.message });
     }
   },
   activeAccount: async (req: Request, res: Response) => {
