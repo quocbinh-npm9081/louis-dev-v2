@@ -8,7 +8,7 @@ import morgan from 'morgan';
 import routes from './routes';
 // BOOT EXPRESS
 const app: Application = express();
-const port = 9999;
+const port = 5000;
 //MIDDLEWARES
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

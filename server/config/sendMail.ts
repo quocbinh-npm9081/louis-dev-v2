@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 import { OAuth2Client } from 'google-auth-library';
 const GOOGLE_MAILER_CLIENT_ID = String(process.env.MAIL_CLIENT_ID);
+console.log(GOOGLE_MAILER_CLIENT_ID);
+
 const GOOGLE_MAILER_CLIENT_SECRET = String(process.env.MAIL_CLIENT_SECRET);
 const GOOGLE_MAILER_REFRESH_TOKEN = String(process.env.MAIL_REFRESH_TOKEN);
 const GOOGLE_MAILER_SENDER = String(process.env.SENDER_MAIL_ADDRESS);

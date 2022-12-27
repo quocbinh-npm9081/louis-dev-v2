@@ -24,9 +24,9 @@ export const validatorRegistration = async (req: Request, res: Response, next: N
     console.log(isVietnamesePhoneNumber(account));
     errors.push('Your email or your phone is incorrects !');
   }
-  // if (isVietnamesePhoneNumber(account)) {
-  //   errors.push('Đăng kí sử dụng sms đang trong giai đoạn phát triển');
-  // }
+  if (isVietnamesePhoneNumber(account)) {
+    errors.push('Đăng kí sử dụng sms đang trong giai đoạn phát triển');
+  }
   if (password.length < 6) {
     errors.push('Your password must be at least 6 characters !');
   }
